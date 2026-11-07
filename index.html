@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALUMINIO ALCAR - Consulta de Preços</title>
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #dadce0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            margin-top: 10px;
+        }
+
+        header h1 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .search-box {
+            position: sticky;
+            top: 10px;
+            z-index: 10;
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .results-info {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            padding-left: 4px;
+        }
+
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 30px;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .product-code {
+            background: #e8f0fe;
+            color: var(--primary-color);
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+
+        .product-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-color);
+            text-transform: uppercase;
+        }
+
+        .product-details {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .detail-tag {
+            background: #f1f3f4;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .product-price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #137333;
+            white-space: nowrap;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Tabela de Preços</h1>
+            <p>ALUMINIO ALCAR</p>
+        </header>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Digite o código ou nome do produto..." autofocus autocomplete="off">
+        </div>
+
+        <div class="results-info" id="resultsInfo">Exibindo todos os produtos</div>
+
+        <div class="product-list" id="productList">
+            <!-- Os produtos serão injetados via JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Banco de dados embutido com os dados atualizados (+100%)
+        const produtos = [
+            {codigo: "001", nome: "CHURRASQUEIRA VIGOROSA", tamanho: "", material: "AL", acabamento: "POLIDA", preco: 172.00},
+            {codigo: "124", nome: "CHURRASQUEIRA VIGOROSA", tamanho: "", material: "AL", acabamento: "PINTADA", preco: 185.64},
+            {codigo: "120", nome: "CUSCUZEIRO", tamanho: "14", material: "VD", acabamento: "AA", preco: 86.00},
+            {codigo: "150", nome: "CUSCUZEIRO", tamanho: "16", material: "VD", acabamento: "AA", preco: 95.00},
+            {codigo: "167", nome: "CUSCUZEIRO", tamanho: "18", material: "VD", acabamento: "AA", preco: 106.48},
+            {codigo: "062", nome: "CUSCUZEIRO VAPORETO", tamanho: "12", material: "VD", acabamento: "AA", preco: 103.74},
+            {codigo: "003", nome: "CUSCUZEIRO À VAPOR", tamanho: "", material: "AL", acabamento: "PINTADA", preco: 86.00},
+            {codigo: "037", nome: "CUSCUZEIRO DUPLEX", tamanho: "", material: "AL", acabamento: "PINTADA", preco: 72.34},
+            {codigo: "044", nome: "CUSCUZEIRO EXTRA", tamanho: "20", material: "AL", acabamento: "PINTADA", preco: 73.72},
+            {codigo: "052", nome: "CUSCUZEIRO EXTRA", tamanho: "18", material: "AL", acabamento: "PINTADA", preco: 66.88},
+            {codigo: "108", nome: "CUSCUZEIRO EXTRA", tamanho: "18", material: "VD", acabamento: "PINTADA", preco: 75.08},
+            {codigo: "109", nome: "CUSCUZEIRO EXTRA", tamanho: "20", material: "VD", acabamento: "PINTADA", preco: 81.90},
+            {codigo: "177", nome: "CUSCUZEIRO EXTRA", tamanho: "16", material: "VD", acabamento: "PINTADA", preco: 68.26},
+            {codigo: "179", nome: "CUSCUZEIRO EXTRA", tamanho: "14", material: "AL", acabamento: "PINTADA", preco: 50.50},
+            {codigo: "180", nome: "CUSCUZEIRO EXTRA", tamanho: "14", material: "VD", acabamento: "PINTADA", preco: 60.06},
+            {codigo: "009", nome: "CUSCUZEIRO EXTRA", tamanho: "16", material: "AL", acabamento: "PINTADA", preco: 57.34},
+            {codigo: "123", nome: "CUSCUZEIRO MULTIUSO", tamanho: "20", material: "AL", acabamento: "PINTADA", preco: 95.56},
+            {codigo: "097", nome: "KIT MULTIUSO", tamanho: "20", material: "AL", acabamento: "PINTADA", preco: 133.78},
+            {codigo: "132", nome: "CUSCUZEIRO MULTIUSO", tamanho: "20", material: "VD", acabamento: "PINTADO", preco: 109.20},
+            {codigo: "166", nome: "CUSCUZEIRO À VAPOR", tamanho: "", material: "AL", acabamento: "POLIDA", preco: 84.64},
+            {codigo: "004", nome: "CUSCUZEIRO EXTRA", tamanho: "16", material: "AL", acabamento: "POLIDA", preco: 54.32},
+            {codigo: "005", nome: "CUSCUZEIRO EXTRA", tamanho: "18", material: "AL", acabamento: "POLIDA", preco: 60.06},
+            {codigo: "006", nome: "CUSCUZEIRO EXTRA", tamanho: "20", material: "AL", acabamento: "POLIDA", preco: 68.26},
+            {codigo: "178", nome: "CUSCUZEIRO EXTRA", tamanho: "14", material: "VD", acabamento: "POLIDA", preco: 47.78},
+            {codigo: "002", nome: "CUSCUZEIRO MULTIUSO", tamanho: "20", material: "AL", acabamento: "POLIDA", preco: 92.28},
+            {codigo: "010", nome: "BACIA", tamanho: "71", material: "", acabamento: "POLIDA", preco: 131.04},
+            {codigo: "007", nome: "BACIA", tamanho: "45", material: "", acabamento: "POLIDA", preco: 73.72},
+            {codigo: "107", nome: "BACIA", tamanho: "30", material: "", acabamento: "POLIDA", preco: 44.20},
+            {codigo: "008", nome: "SUPORTE PARA BOTIJÃO", tamanho: "30", material: "", acabamento: "PINTADO", preco: 91.46},
+            {codigo: "011", nome: "CAFETEIRA", tamanho: "½ LTS", material: "AL", acabamento: "PINTADA", preco: 81.90},
+            {codigo: "080", nome: "CAFETEIRA", tamanho: "1L", material: "AL", acabamento: "PINTADA", preco: 95.56},
+            {codigo: "085", nome: "CAFETEIRA", tamanho: "1.5L", material: "AL", acabamento: "PINTADA", preco: 125.58},
+            {codigo: "115", nome: "CJ. MANTIMENTOS 05 PÇS", tamanho: "", material: "AL", acabamento: "PINTADO", preco: 259.36},
+            {codigo: "072", nome: "KIT CAFÉ DA MANHÃ", tamanho: "", material: "AL", acabamento: "PINTADO", preco: 109.20},
+            {codigo: "159", nome: "KIT CONDIMENTOS", tamanho: "", material: "AL", acabamento: "PINTADO", preco: 79.18},
+            {codigo: "045", nome: "KIT COZINHA DUO – (C&S)", tamanho: "", material: "AL", acabamento: "PINTADO", preco: 81.90},
+            {codigo: "110", nome: "KIT FEIJOADA 03 PÇS", tamanho: "", material: "AL", acabamento: "PINTADO", preco: 371.28},
+            {codigo: "113", nome: "KIT FEIJOADA 03 PÇS", tamanho: "", material: "AL", acabamento: "POLIDO", preco: 343.98},
+            {codigo: "088", nome: "CJ. ASSADEIRA RETANGULAR – 03 PÇS", tamanho: "", material: "", acabamento: "POLIDA", preco: 133.78},
+            {codigo: "089", nome: "CJ. ASSADEIRA RETANGULAR – 04 PÇS", tamanho: "", material: "", acabamento: "POLIDA", preco: 185.64},
+            {codigo: "020", nome: "CJ. FORMAS REDONDA P/TORTA/BOLO", tamanho: "26/30/36", material: "", acabamento: "POLIDA", preco: 185.64},
+            {codigo: "082", nome: "CJ. FORMAS REDONDA PARA BOLO", tamanho: "24/28", material: "", acabamento: "POLIDA", preco: 114.66},
+            {codigo: "083", nome: "CJ. FORMAS REDONDA PARA BOLO", tamanho: "24/32", material: "", acabamento: "POLIDA", preco: 128.32},
+            {codigo: "151", nome: "FORMA AVULSO", tamanho: "18", material: "", acabamento: "POLIDA", preco: 31.40},
+            {codigo: "152", nome: "FORMA AVULSO", tamanho: "20", material: "", acabamento: "POLIDA", preco: 36.86},
+            {codigo: "153", nome: "FORMA AVULSO", tamanho: "22", material: "", acabamento: "POLIDA", preco: 42.32},
+            {codigo: "154", nome: "FORMA AVULSO", tamanho: "26", material: "", acabamento: "POLIDA", preco: 68.26},
+            {codigo: "155", nome: "FORMA AVULSO", tamanho: "28", material: "", acabamento: "POLIDA", preco: 77.80},
+            {codigo: "100", nome: "FORMA AVULSO", tamanho: "24", material: "", acabamento: "POLIDA", preco: 57.34},
+            {codigo: "015", nome: "PIPOQUEIRA PINTADA", tamanho: "", material: "AL", acabamento: "PINTADA", preco: 91.46},
+            {codigo: "087", nome: "PIPOQUEIRA POLIDA", tamanho: "", material: "AL", acabamento: "POLIDA", preco: 75.90},
+            {codigo: "117", nome: "PIPOQUEIRA PINTADA", tamanho: "", material: "VD", acabamento: "PINTADA", preco: 117.40},
+            {codigo: "156", nome: "CANECÃO AVULSO C/TP", tamanho: "12", material: "AL", acabamento: "PINTADA", preco: 38.22},
+            {codigo: "157", nome: "CANECÃO AVULSO C/TP", tamanho: "14", material: "AL", acabamento: "PINTADA", preco: 42.32},
+            {codigo: "158", nome: "CANECÃO AVULSO C/TP", tamanho: "16", material: "AL", acabamento: "PINTADA", preco: 45.04},
+            {codigo: "147", nome: "CANECÃO AVULSO S/TP", tamanho: "12", material: "", acabamento: "PINTADA", preco: 34.40},
+            {codigo: "148", nome: "CANECÃO AVULSO S/TP", tamanho: "14", material: "", acabamento: "PINTADA", preco: 37.40},
+            {codigo: "149", nome: "CANECÃO AVULSO S/TP", tamanho: "16", material: "", acabamento: "PINTADA", preco: 40.40},
+            {codigo: "104", nome: "CANECÃO AVULSO S/TP", tamanho: "12", material: "", acabamento: "POLIDO", preco: 31.40},
+            {codigo: "105", nome: "CANECÃO AVULSO S/TP", tamanho: "14", material: "", acabamento: "POLIDO", preco: 34.40},
+            {codigo: "106", nome: "CANECÃO AVULSO S/TP", tamanho: "16", material: "", acabamento: "POLIDO", preco: 37.40},
+            {codigo: "102", nome: "CJ. CANECÃO BAQUELITE COLLOR C/TPA 3PCS", tamanho: "12/14/16", material: "AL", acabamento: "PINTADA", preco: 109.20},
+            {codigo: "128", nome: "CJ. CANECÃO BAQUELITE COLLOR S/TPA 3PCS", tamanho: "12/14/16", material: "", acabamento: "PINTADA", preco: 86.00},
+            {codigo: "090", nome: "CJ. CANECÃO BAQUELITE COLLOR S/TPA 3PCS", tamanho: "12/14/16", material: "", acabamento: "POLIDO", preco: 84.64},
+            {codigo: "091", nome: "CJ. CANECÃO CABO MADEIRA", tamanho: "12/14/16", material: "", acabamento: "PINTADA", preco: 119.84},
+            {codigo: "086", nome: "LEITEIRA INDERRAMÁVEL", tamanho: "", material: "", acabamento: "PINTADA", preco: 92.28},
+            {codigo: "043", nome: "TACHO LINHA HOTEL", tamanho: "40", material: "AL", acabamento: "", preco: 214.30},
+            {codigo: "051", nome: "TACHO LINHA HOTEL", tamanho: "36", material: "AL", acabamento: "", preco: 185.64},
+            {codigo: "084", nome: "TACHO LINHA HOTEL", tamanho: "32", material: "AL", acabamento: "", preco: 150.16},
+            {codigo: "039", nome: "PANELA PRESSÃO FECHAMENTO EXTERNO", tamanho: "3L", material: "AL", acabamento: "AA", preco: 257.98},
+            {codigo: "040", nome: "PANELA PRESSÃO FECHAMENTO EXTERNO", tamanho: "4/5L", material: "AL", acabamento: "AA", preco: 286.66},
+            {codigo: "041", nome: "PANELA PRESSÃO FECHAMENTO EXTERNO", tamanho: "4/5L", material: "VD", acabamento: "AA", preco: 307.12},
+            {codigo: "042", nome: "PANELA PRESSÃO FECHAMENTO EXTERNO", tamanho: "10L", material: "AL", acabamento: "AA", preco: 573.30},
+            {codigo: "092", nome: "PANELA PRESSÃO", tamanho: "2/5L", material: "AL", acabamento: "POL/PINT", preco: 140.60},
+            {codigo: "093", nome: "PANELA PRESSÃO", tamanho: "4/5L", material: "AL", acabamento: "POL/PINT", preco: 158.34},
+            {codigo: "094", nome: "PANELA PRESSÃO", tamanho: "10L", material: "AL", acabamento: "POL/PINT", preco: 292.12},
+            {codigo: "098", nome: "PANELA PRESSÃO", tamanho: "7L", material: "AL", acabamento: "POL/PINT", preco: 202.02},
+            {codigo: "164", nome: "CAÇAROLA C/ALÇA AVULSA", tamanho: "18", material: "VD", acabamento: "PINTADA", preco: 73.72},
+            {codigo: "161", nome: "CAÇAROLA C/CABO AVULSA", tamanho: "16", material: "VD", acabamento: "PINTADA", preco: 68.26},
+            {codigo: "163", nome: "CAÇAROLA C/CABO AVULSA", tamanho: "18", material: "VD", acabamento: "PINTADA", preco: 73.72},
+            {codigo: "165", nome: "CAÇAROLA AVULSO", tamanho: "24", material: "AL", acabamento: "POL/PINT", preco: 0.00},
+            {codigo: "141", nome: "CAÇAROLA AVULSO", tamanho: "20", material: "AL", acabamento: "POL/PINT", preco: 0.00},
+            {codigo: "138", nome: "CAÇAROLA AVULSO", tamanho: "18", material: "AL", acabamento: "POL/PINT", preco: 0.00},
+            {codigo: "022", nome: "CAÇAROLA LINHA HOTEL AVULSO", tamanho: "26", material: "AL", acabamento: "POL/PINT", preco: 0.00},
+            {codigo: "023", nome: "CAÇAROLA LINHA HOTEL AVULSO", tamanho: "28", material: "AL", acabamento: "POL/PINT", preco: 0.00},
+            {codigo: "024", nome: "CAÇAROLA LINHA HOTEL AVULSO", tamanho: "30", material: "AL", acabamento: "POL/PINT", preco: 0.00},
+            {codigo: "025", nome: "CAÇAROLA LINHA HOTEL AVULSO", tamanho: "32", material: "AL", acabamento: "POLIDA", preco: 174.72},
+            {codigo: "121", nome: "CAÇAROLA LINHA HOTEL AVULSO", tamanho: "32", material: "AL", acabamento: "PINTADA", preco: 185.64},
+            {codigo: "181", nome: "CAÇAROLA LINHA HOTEL AVULSO", tamanho: "40", material: "AL", acabamento: "PINTADA", preco: 360.36},
+            {codigo: "162", nome: "CJ. CAÇAROLA ALÇA /MAD. 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "PINTADA", preco: 300.30},
+            {codigo: "033", nome: "CJ. CAÇAROLA BUJUDINHA 3PCS", tamanho: "14/16/18", material: "VD", acabamento: "PINTADA", preco: 212.40},
+            {codigo: "116", nome: "CJ. CAÇAROLA ATENAS R PÇS", tamanho: "18 À 26", material: "AL", acabamento: "PINTADA", preco: 337.74},
+            {codigo: "012", nome: "CJ. CAÇAROLA DULAR 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "POLIDA", preco: 232.06},
+            {codigo: "032", nome: "CJ. CAÇAROLA DULAR 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "PINTADA", preco: 232.06},
+            {codigo: "036", nome: "CJ. CAÇAROLA DULAR 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "PINTADA", preco: 313.96},
+            {codigo: "131", nome: "CJ. CAÇAROLA ESPECIAL 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "PINTADA", preco: 414.96},
+            {codigo: "026", nome: "CJ. CAÇAROLA EXTRA 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "POLIDA", preco: 357.64},
+            {codigo: "027", nome: "CJ. CAÇAROLA EXTRA 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "PINTADA", preco: 371.28},
+            {codigo: "125", nome: "CJ. CAÇAROLA EXTRA 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "POLIDA", preco: 436.52},
+            {codigo: "038", nome: "CJ. CAÇAROLA EXTRA 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "PINTADA", preco: 450.18},
+            {codigo: "127", nome: "CJ. CAÇAROLA FRANCESA 5PCS", tamanho: "14 À 22", material: "AL", acabamento: "PINTADA", preco: 214.30},
+            {codigo: "142", nome: "CJ. CAÇAROLA FRANCESA 5PCS", tamanho: "14 À 22", material: "VD", acabamento: "PINTADA", preco: 259.36},
+            {codigo: "168", nome: "CJ. CAÇAROLA IPANEMA 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "AA", preco: 458.64},
+            {codigo: "146", nome: "CJ. CAÇAROLA LINHA HOTEL 3PCS", tamanho: "24/28/32", material: "AL", acabamento: "PINTADA", preco: 409.50},
+            {codigo: "034", nome: "CJ. CAÇAROLA LINHA HOTEL 3PCS", tamanho: "24/26/28", material: "AL", acabamento: "PINTADA", preco: 286.66},
+            {codigo: "035", nome: "CJ. CAÇAROLA LINHA HOTEL 3PCS", tamanho: "26/28/30", material: "AL", acabamento: "PINTADA", preco: 371.28},
+            {codigo: "169", nome: "CJ. CAÇAROLA LUXO 3PCS", tamanho: "16/18/20", material: "VD", acabamento: "AA/ROTO", preco: 259.36},
+            {codigo: "101", nome: "CJ. CAÇAROLA MADRID 6PCS", tamanho: "", material: "VD", acabamento: "AA", preco: 606.06},
+            {codigo: "119", nome: "CJ. CAÇAROLA PARIS 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "PINTADA", preco: 417.70},
+            {codigo: "013", nome: "CJ. CAÇAROLA PARIS 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "AA", preco: 559.66},
+            {codigo: "014", nome: "CJ. CAÇAROLA PÁRIS 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "PINTADA", preco: 371.28},
+            {codigo: "114", nome: "CJ. CAÇAROLA PARIS-EXTRA 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "POL/PINT", preco: 406.78},
+            {codigo: "016", nome: "CJ. CAÇAROLA PARIS-EXTRA 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "PINTADA", preco: 496.86},
+            {codigo: "173", nome: "CJ. CAÇAROLA PREMIUM 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "PINTADA", preco: 286.66},
+            {codigo: "031", nome: "CJ. CAÇAROLA PREMIUM 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "PINTADA", preco: 387.66},
+            {codigo: "018", nome: "CJ. CAÇAROLA RETA COLLOR 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "PINTADA", preco: 272.72},
+            {codigo: "017", nome: "CJ. CAÇAROLA RETA COLLOR 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "POLIDA", preco: 264.82},
+            {codigo: "019", nome: "CJ. CAÇAROLA RETA COLLOR 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "PINTADA", preco: 371.28},
+            {codigo: "030", nome: "CJ. CAÇAROLA SUPER-ALTA 5PCS", tamanho: "16 À 24", material: "AL", acabamento: "PINTADA", preco: 313.96},
+            {codigo: "145", nome: "CJ. CAÇAROLA SUPER-ALTA 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "PINTADA", preco: 382.20},
+            {codigo: "133", nome: "CJ. CAÇAROLA SUPER-LUXO 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "AA", preco: 559.66},
+            {codigo: "099", nome: "CJ. PANELAS JAKART I 5PCS", tamanho: "", material: "VD", acabamento: "AA", preco: 458.64},
+            {codigo: "046", nome: "CJ. PANELAS JAKART II 6PCS", tamanho: "", material: "VD", acabamento: "AA", preco: 750.76},
+            {codigo: "126", nome: "CJ. VAPORELA 5PCS", tamanho: "16 À 24", material: "VD", acabamento: "PINTADA", preco: 372.64},
+            {codigo: "139", nome: "CJ. CAÇAROLA ULTRA-FORTE AA – 05 PÇS", tamanho: "16 Á 24", material: "VD", acabamento: "PINTADA", preco: 777.40},
+            {codigo: "170", nome: "KIT “PANELEIRO DO BAHIA” 08 PÇS", tamanho: "", material: "AL", acabamento: "PINTADA", preco: 546.00},
+            {codigo: "095", nome: "KIT MASTER AA 3 PÇS", tamanho: "16/20/22", material: "VD", acabamento: "PINTADA", preco: 247.00},
+            {codigo: "029", nome: "KIT PREMIUM 5 PÇS", tamanho: "", material: "AL", acabamento: "PINTADA", preco: 240.24},
+            {codigo: "096", nome: "CALDEIRÃO LINHA HOTEL", tamanho: "26", material: "AL", acabamento: "PINTADA", preco: 0.00},
+            {codigo: "047", nome: "CALDEIRÃO LINHA HOTEL", tamanho: "28", material: "AL", acabamento: "PINTADA", preco: 177.46},
+            {codigo: "048", nome: "CALDEIRÃO LINHA HOTEL", tamanho: "30", material: "AL", acabamento: "PINTADA", preco: 204.76},
+            {codigo: "049", nome: "CALDEIRÃO LINHA HOTEL", tamanho: "32", material: "AL", acabamento: "PINTADA", preco: 242.98},
+            {codigo: "054", nome: "CJ. CALDEIRÃO RETO COLLOR C/ARO", tamanho: "16/24", material: "AL", acabamento: "PINTADA", preco: 409.50},
+            {codigo: "055", nome: "CJ. CALDEIRÃO LINHA HOTEL", tamanho: "26/30", material: "AL", acabamento: "PINTADA", preco: 491.40},
+            {codigo: "130", nome: "CJ. CALDEIRÃO RETO COLLOR", tamanho: "16/24", material: "AL", acabamento: "PINTADA", preco: 409.50},
+            {codigo: "074", nome: "CJ. FRIGIDEIRA 3PCS", tamanho: "18/20/22", material: "VD", acabamento: "AA", preco: 232.06},
+            {codigo: "073", nome: "CJ. FRIGIDEIRA 3PCS", tamanho: "16/20/22", material: "VD", acabamento: "AA", preco: 218.12},
+            {codigo: "118", nome: "CJ. FRIGIDEIRA S/ ESPÁTULA 03 PCS", tamanho: "16/20/24", material: "", acabamento: "AA", preco: 136.50},
+            {codigo: "028", nome: "CJ. FRIGIDEIRA 4 PCS – LANÇAMENTO", tamanho: "", material: "", acabamento: "POLIDA", preco: 0.00},
+            {codigo: "021", nome: "CJ. FRIGIDEIRA ROTO", tamanho: "18/20/22", material: "VD", acabamento: "AA", preco: 0.00},
+            {codigo: "075", nome: "CJ. FRIGIDEIRA C/CABO MAD./TP 3PCS", tamanho: "18/20/22", material: "AL", acabamento: "PINTADA", preco: 150.16},
+            {codigo: "076", nome: "CJ. FRIGIDEIRA COLLOR C/TAMPA E ALÇA 03 PÇS", tamanho: "20/22/24", material: "AL", acabamento: "PINTADA", preco: 155.62},
+            {codigo: "077", nome: "CJ. FRIGIDEIRA COLLOR C/TAMPA E CABO 03 PÇS", tamanho: "20/22/24", material: "AL", acabamento: "PINTADA", preco: 155.62},
+            {codigo: "134", nome: "CJ. FRIGIDEIRA LINHA HOTEL 3PCS", tamanho: "24/28", material: "AL", acabamento: "PINTADA", preco: 232.06},
+            {codigo: "144", nome: "FRIGIDEIRA AA Nº 32", tamanho: "32", material: "VD", acabamento: "PINTADA", preco: 271.64},
+            {codigo: "143", nome: "CJ. FRIGIDEIRA PINTADA 3PCS", tamanho: "18/20/22", material: "AL", acabamento: "PINTADA", preco: 133.78},
+            {codigo: "078", nome: "CJ. FRIGIDEIRA POP S/TPA", tamanho: "18/20/22", material: "", acabamento: "PINTADA", preco: 95.56},
+            {codigo: "103", nome: "CJ. FRIGIDERIRA 03 PÇS", tamanho: "20/22/24", material: "VD", acabamento: "PINTADA", preco: 212.66},
+            {codigo: "140", nome: "CJ.FRIGIDEIRA RETA 03 PÇS", tamanho: "18/20/22", material: "VD", acabamento: "PINTADA", preco: 188.38},
+            {codigo: "122", nome: "CREPIOQUEIRA AA / PANQUEQUEIRA", tamanho: "", material: "", acabamento: "AA", preco: 77.80},
+            {codigo: "063", nome: "FRIGIDEIRA C/TAMPA", tamanho: "28", material: "VD", acabamento: "AA", preco: 163.52},
+            {codigo: "053", nome: "FRIGIDEIRA YOK CHINESA", tamanho: "30", material: "VD", acabamento: "AA", preco: 191.10},
+            {codigo: "160", nome: "FRIGIDEIRA QUADRIOVOS", tamanho: "26", material: "VD", acabamento: "AA", preco: 114.66},
+            {codigo: "066", nome: "FRIGIDEIRA C/TAMPA", tamanho: "18", material: "VD", acabamento: "AA", preco: 54.60},
+            {codigo: "067", nome: "FRIGIDEIRA C/TAMPA", tamanho: "20", material: "VD", acabamento: "AA", preco: 73.72},
+            {codigo: "068", nome: "FRIGIDEIRA C/TAMPA", tamanho: "22", material: "VD", acabamento: "AA", preco: 81.90},
+            {codigo: "069", nome: "FRIGIDEIRA C/TAMPA", tamanho: "24", material: "VD", acabamento: "AA", preco: 141.96},
+            {codigo: "070", nome: "FRIGIDEIRA C/TAMPA", tamanho: "26", material: "VD", acabamento: "AA", preco: 158.34},
+            {codigo: "071", nome: "FRIGIDEIRA C/TAMPA", tamanho: "30", material: "VD", acabamento: "AA", preco: 169.26},
+            {codigo: "112", nome: "FRIGIDEIRA AVULSA", tamanho: "30", material: "VD", acabamento: "PINTADA", preco: 166.54},
+            {codigo: "056", nome: "FRIGIDEIRA RETA C/TAMPA", tamanho: "16", material: "AL", acabamento: "PINTADA", preco: 42.86},
+            {codigo: "057", nome: "FRIGIDEIRA RETA C/TAMPA", tamanho: "18", material: "AL", acabamento: "PINTADA", preco: 48.32},
+            {codigo: "058", nome: "FRIGIDEIRA RETA C/TAMPA", tamanho: "20", material: "AL", acabamento: "PINTADA", preco: 53.78},
+            {codigo: "059", nome: "FRIGIDEIRA RETA C/TAMPA", tamanho: "22", material: "AL", acabamento: "PINTADA", preco: 60.06},
+            {codigo: "060", nome: "FRIGIDEIRA RETA C/TAMPA", tamanho: "24", material: "AL", acabamento: "PINTADA", preco: 81.62},
+            {codigo: "061", nome: "FRIGIDEIRA RETA C/TAMPA", tamanho: "26", material: "AL", acabamento: "PINTADA", preco: 150.16},
+            {codigo: "135", nome: "FRIGIDEIRA RETA L.HOTEL", tamanho: "36", material: "AL", acabamento: "PINTADA", preco: 172.00},
+            {codigo: "129", nome: "FRIGIDEIRA RETA PINTADA", tamanho: "32", material: "AL", acabamento: "PINTADA", preco: 169.26},
+            {codigo: "065", nome: "FRIGIDEIRA S/TAMPA", tamanho: "16", material: "S/", acabamento: "AA", preco: 40.96},
+            {codigo: "171", nome: "FRITADEIRA C/ESPÁTULA", tamanho: "30", material: "VD", acabamento: "AA", preco: 0.00},
+            {codigo: "172", nome: "FRITADEIRA C/ESPÁTULA", tamanho: "24", material: "VD", acabamento: "AA", preco: 100.20},
+            {codigo: "050", nome: "KIT FRIGIDEIRA 02 PÇS D/ ESPATULA", tamanho: "18 e 22", material: "VD", acabamento: "AA/PINTADA", preco: 144.70},
+            {codigo: "081", nome: "KIT FRIGIDEIRA AA (BAIXA)", tamanho: "16 e 20", material: "", acabamento: "AA", preco: 108.92},
+            {codigo: "079", nome: "KIT FRIGIDEIRA C/ESPÁTULA", tamanho: "20 e 24", material: "", acabamento: "AA", preco: 109.20},
+            {codigo: "137", nome: "KIT FRIGIGIDEIRA 02 PÇS", tamanho: "20 e 24", material: "VD", acabamento: "PINTADA", preco: 144.70},
+            {codigo: "203", nome: "FORMA PREMIUM PARA PIZZA", tamanho: "40", material: "AL", acabamento: "POLIDO", preco: 88.40},
+            {codigo: "204", nome: "FORMA PREMIUM PARA PIZZA", tamanho: "36", material: "AL", acabamento: "POLIDO", preco: 78.00},
+            {codigo: "205", nome: "FORMA PREMIUM PARA PIZZA", tamanho: "30", material: "AL", acabamento: "POLIDO", preco: 63.20},
+            {codigo: "206", nome: "FORMA PREMIUM PARA PIZZA", tamanho: "26", material: "AL", acabamento: "POLIDO", preco: 53.20},
+            {codigo: "207", nome: "FORMA ULTRA-FORT PARA PIZZA", tamanho: "40", material: "AL", acabamento: "POLIDO", preco: 145.60},
+            {codigo: "208", nome: "FORMA ULTRA-FORT PARA PIZZA", tamanho: "36", material: "AL", acabamento: "POLIDO", preco: 119.60},
+            {codigo: "209", nome: "FORMA ULTRA-FORT PARA PIZZA", tamanho: "30", material: "AL", acabamento: "POLIDO", preco: 83.20},
+            {codigo: "210", nome: "FORMA ULTRA-FORT PARA PIZZA", tamanho: "26", material: "AL", acabamento: "POLIDO", preco: 59.00},
+            {codigo: "211", nome: "CJ. PANELA DE PRESSAO VERSALIS AA", tamanho: "05 PCS", material: "", acabamento: "AA", preco: 468.40},
+            {codigo: "212", nome: "FRUTEIRA 02 PARTES TAMPO DE GRAN", tamanho: "", material: "", acabamento: "TAMPO DE GRANITO", preco: 257.40},
+            {codigo: "213", nome: "PANELA DE PRESSAO AA FE EXT", tamanho: "10L", material: "", acabamento: "AA", preco: 572.00},
+            {codigo: "302", nome: "FAQUEIRO INOX IDEA HOME", tamanho: "24", material: "", acabamento: "INOX", preco: 208.00},
+            {codigo: "256", nome: "FRIGIDEIRA AVULSA 3mm", tamanho: "36", material: "AL", acabamento: "POLIDO", preco: 234.00},
+            {codigo: "257", nome: "CJ. CAÇAROLA LINHA HOTEL 2PCS", tamanho: "26 e 30", material: "AL", acabamento: "PINTADA", preco: 234.00},
+            {codigo: "258", nome: "PANELA PRESSÃO FECHAMENTO EXTERNO", tamanho: "4/5L", material: "AL", acabamento: "AL", preco: 234.00}
+        ];
+
+        const searchInput = document.getElementById('searchInput');
+        const productList = document.getElementById('productList');
+        const resultsInfo = document.getElementById('resultsInfo');
+
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function renderizarProdutos(lista) {
+            if (lista.length === 0) {
+                productList.innerHTML = `<div class="no-results">Nenhum produto encontrado.</div>`;
+                resultsInfo.textContent = `0 produtos encontrados`;
+                return;
+            }
+
+            resultsInfo.textContent = `Exibindo ${lista.length} produto(s)`;
+            
+            productList.innerHTML = lista.map(p => `
+                <div class="product-card">
+                    <div class="product-info">
+                        <div class="product-header">
+                            <span class="product-code">CÓD: ${p.codigo}</span>
+                            <span class="product-name">${p.nome}</span>
+                        </div>
+                        <div class="product-details">
+                            ${p.tamanho ? `<span class="detail-tag">Tam: ${p.tamanho}</span>` : ''}
+                            ${p.material ? `<span class="detail-tag">Mat: ${p.material}</span>` : ''}
+                            ${p.acabamento ? `<span class="detail-tag">Acab: ${p.acabamento}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="product-price">${formatarMoeda(p.preco)}</div>
+                </div>
+            `).join('');
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const termo = e.target.value.toLowerCase().trim();
+            
+            const filtrados = produtos.filter(p => {
+                return p.codigo.toLowerCase().includes(termo) || 
+                       p.nome.toLowerCase().includes(termo) ||
+                       p.acabamento.toLowerCase().includes(termo) ||
+                       p.material.toLowerCase().includes(termo);
+            });
+
+            renderizarProdutos(filtrados);
+        });
+
+        // Inicializar listagem completa ao carregar
+        renderizarProdutos(produtos);
+    </script>
+</body>
+</html>
